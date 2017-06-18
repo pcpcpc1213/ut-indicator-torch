@@ -1,0 +1,15 @@
+{
+    "name": "indicator-torch.nfsprodriver",
+    "description": "A basic indicator for the torch",
+    "architecture": "@CLICK_ARCH@",
+    "title": "Indicator Torch",
+    "hooks": {
+        "indicator-torch": {
+            "apparmor": "indicator-torch.apparmor",
+            "desktop":  "indicator-torch.desktop"
+        }
+    },
+    "version": "@VERSION@",
+    "maintainer": "Bjarne Roß <ross.b@freenet.de>",
+    "framework" : "ubuntu-sdk-15.04.6"
+}
