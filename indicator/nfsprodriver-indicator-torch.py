@@ -21,7 +21,7 @@ logger.addHandler(handler)
 logger.setLevel(logging.DEBUG)
 
 
-class TorchIndicator(object):
+class ChargingLightIndicator(object):
     ROOT_ACTION = 'root'
     ON_ACTION = 'on'
     OFF_ACTION = 'off'
@@ -46,7 +46,7 @@ class TorchIndicator(object):
     def on_action_activated(self, action, data):
         logger.debug('on_action_activated')
         # For some reason ubuntu-app-launch hangs without the version, so let cmake set it for us
-        os.system('echo 255 > /sys/class/leds/led\:flash_torch/brightness')
+        os.system('dconf write /com/lomiri/ledindication/charging-state-visible true')
         self.current_switch_icon = "torch-on"
         self.update_torch()
         
@@ -55,8 +55,8 @@ class TorchIndicator(object):
     def off_action_activated(self, action, data):
         logger.debug('off_action_activated')
         # For some reason ubuntu-app-launch hangs without the version, so let cmake set it for us
-        os.system('echo 0 > /sys/class/leds/led\:flash_torch/brightness')
-        self.current_switch_icon = "torch-off"
+        os.system('dconf write /com/lomiri/ledindication/charging-state-visible false')
+        self.current_switch_icon = "torch-on"
         self.update_torch()
 
     def _setup_actions(self):
@@ -74,10 +74,10 @@ class TorchIndicator(object):
     def _create_section(self):
         section = Gio.Menu()
 
-        on_menu_item = Gio.MenuItem.new('Torch on', 'indicator.{}'.format(self.ON_ACTION))
+        on_menu_item = Gio.MenuItem.new('Charging LED on', 'indicator.{}'.format(self.ON_ACTION))
         section.append_item(on_menu_item)
 
-        off_menu_item = Gio.MenuItem.new('Torch off', 'indicator.{}'.format(self.OFF_ACTION))
+        off_menu_item = Gio.MenuItem.new('Charging LED off', 'indicator.{}'.format(self.OFF_ACTION))
         section.append_item(off_menu_item)
 
         return section
@@ -92,7 +92,7 @@ class TorchIndicator(object):
 
     def _update_menu(self):
         self.sub_menu.remove(self.MAIN_SECTION)
-        self.sub_menu.insert_section(self.MAIN_SECTION, 'Torch', self._create_section())
+        self.sub_menu.insert_section(self.MAIN_SECTION, 'Charging LED', self._create_section())
 
     def update_torch(self):  # TODO see if the network status can be checked/watched
         logger.debug('Updated state to: {}'.format(self.current_icon()))
@@ -132,8 +132,8 @@ if __name__ == '__main__':
         logger.critical('Error: Bus name is already taken')
         sys.exit(1)
 
-    wi = TorchIndicator(bus)
+    wi = ChargingLightIndicator(bus)
     wi.run()
 
-    logger.debug('Torch Indicator startup completed')
+    logger.debug('Charing LED Indicator startup completed')
     GLib.MainLoop().run()
